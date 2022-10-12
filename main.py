@@ -9,6 +9,7 @@ colorama.init(convert=True)
 
 def desktop_path():
     """
+    Returns the path to the desktop either in English or in Greek Windows version.
     :return: The path to Desktop
     """
     if os.path.exists(os.path.join(pathlib.Path.home(), 'Desktop')):
@@ -30,7 +31,7 @@ def download_video(video_url):
             .first()
         file = video.download(output_path=desktop_path())
         # result of success
-        print(f"{colorama.Fore.GREEN}{video.title} has been successfully downloaded.{colorama.Style.RESET_ALL}")
+        print(f"{colorama.Fore.GREEN}Song [{video.title}] has been successfully downloaded.{colorama.Style.RESET_ALL}")
         return file
     except pytube.exceptions.RegexMatchError as err:
         print(f'{colorama.Fore.RED}Link is not valid{colorama.Style.RESET_ALL}')
@@ -40,13 +41,20 @@ def download_video(video_url):
     except Exception as err:
         raise err
 
+
 def download_playlist(url: str):
+    """
+    Downloads the given playlist
+    :param url: (str) The url of the playlist
+    :return: None
+    """
     try:
         playlist = pytube.Playlist(url)
         for video_url in playlist.video_urls:
             video = download_video(video_url=video_url)
             convert_to_mp3(video)
-        print(f"{colorama.Fore.GREEN}Playlist [{playlist.title}] has been successfully downloaded.{colorama.Style.RESET_ALL}")
+        print(
+            f"{colorama.Fore.GREEN}Playlist [{playlist.title}] has been successfully downloaded.{colorama.Style.RESET_ALL}")
     except pytube.exceptions.RegexMatchError as err:
         print(f'{colorama.Fore.RED}Link is not valid{colorama.Style.RESET_ALL}')
         if debug:
@@ -56,6 +64,11 @@ def download_playlist(url: str):
 
 
 def convert_to_mp3(file):
+    """
+    Converts video to mp3
+    :param file: The path to the given file
+    :return: None | Recursion
+    """
     base, ext = os.path.splitext(file)
     new_file = base + '.mp3'
     try:
@@ -72,7 +85,7 @@ if __name__ == '__main__':
         video_link = str(input("Paste the link to be downloaded (enter to exit): "))
         if video_link == "":
             sys.exit()
-        #TODO: regex for playlist.
+        # TODO: regex for playlist.
         elif 'playlist' in video_link:
             download_playlist(video_link)
         else:
