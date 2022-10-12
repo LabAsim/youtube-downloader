@@ -37,7 +37,7 @@ def download_video(video_url):
         print(f'{colorama.Fore.RED}Link is not valid{colorama.Style.RESET_ALL}')
         if debug:
             raise err
-        return download_video()  # Needs return here, otherwise it returns None
+        return download_video(video_url)  # Needs return here, otherwise it returns None
     except Exception as err:
         raise err
 
