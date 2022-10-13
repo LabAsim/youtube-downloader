@@ -18,10 +18,11 @@ def desktop_path():
         return os.path.join(pathlib.Path.home(), 'Επιφάνεια Εργασίας')
 
 
-def download_video(video_url):
+def download_video(video_url: str, target_path=None):
     """
     Downloads and returns the selected video file
     :param video_url: The url of the video
+    :param target_path: The path for the video to be saved. If None, the default is the path to Desktop.
     :return: Downloaded Video file
     """
     try:
@@ -29,7 +30,10 @@ def download_video(video_url):
         video = yt.streams \
             .filter(only_audio=True) \
             .first()
-        file = video.download(output_path=desktop_path())
+        if not target_path:
+            file = video.download(output_path=desktop_path())
+        else:
+            file = video.download(output_path=target_path)
         # result of success
         print(f"{colorama.Fore.GREEN}Song [{video.title}] has been successfully downloaded.{colorama.Style.RESET_ALL}")
         return file
@@ -37,7 +41,11 @@ def download_video(video_url):
         print(f'{colorama.Fore.RED}Link is not valid{colorama.Style.RESET_ALL}')
         if debug:
             raise err
-        return download_video(video_url)  # Needs return here, otherwise it returns None
+        # Needs return here, otherwise it returns None
+        if not target_path:
+            return download_video(video_url, target_path=desktop_path())
+        else:
+            return download_video(video_url, target_path)
     except Exception as err:
         raise err
 
@@ -50,11 +58,14 @@ def download_playlist(url: str):
     """
     try:
         playlist = pytube.Playlist(url)
+        os.mkdir(os.path.join(desktop_path(), playlist.title))
+        playlist_folder = os.path.join(desktop_path(), playlist.title)
         for video_url in playlist.video_urls:
-            video = download_video(video_url=video_url)
+            video = download_video(video_url=video_url, target_path=playlist_folder)
             convert_to_mp3(video)
-        print(
-            f"{colorama.Fore.GREEN}Playlist [{playlist.title}] has been successfully downloaded.{colorama.Style.RESET_ALL}")
+        print(f"{colorama.Fore.GREEN}"
+              f"Playlist [{playlist.title}] has been successfully downloaded and saved in {playlist_folder}."
+              f"{colorama.Style.RESET_ALL}")
     except pytube.exceptions.RegexMatchError as err:
         print(f'{colorama.Fore.RED}Link is not valid{colorama.Style.RESET_ALL}')
         if debug:
