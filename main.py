@@ -3,7 +3,7 @@ import sys
 import pytube
 import os
 import colorama
-
+import shutil
 colorama.init(convert=True)
 
 
@@ -58,8 +58,14 @@ def download_playlist(url: str):
     """
     try:
         playlist = pytube.Playlist(url)
-        os.mkdir(os.path.join(desktop_path(), playlist.title))
         playlist_folder = os.path.join(desktop_path(), playlist.title)
+        try:
+            os.mkdir(playlist_folder)
+        except FileExistsError:
+            shutil.rmtree(playlist_folder)
+            print(f"Previous folder [{playlist_folder.title()}] was deleted")
+            os.mkdir(playlist_folder)
+            print(f"A new folder [{playlist_folder.title()}] is created")
         for video_url in playlist.video_urls:
             video = download_video(video_url=video_url, target_path=playlist_folder)
             convert_to_mp3(video)
