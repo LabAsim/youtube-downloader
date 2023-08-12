@@ -4,6 +4,7 @@ import pytube
 import os
 import colorama
 import shutil
+
 colorama.init(convert=True)
 
 
@@ -95,7 +96,7 @@ def convert_to_mp3(file):
         return convert_to_mp3(file)
 
 
-debug = False
+debug = True
 
 if __name__ == '__main__':
     while True:
@@ -107,3 +108,7 @@ if __name__ == '__main__':
             download_playlist(video_link)
         else:
             download_video(video_link)
+
+# Workaround
+# https://github.com/pytube/pytube/issues/1754#issuecomment-1675184514
+# https://stackoverflow.com/a/72076299
