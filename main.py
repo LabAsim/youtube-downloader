@@ -5,6 +5,8 @@ import os
 import colorama
 import shutil
 
+from pytube import exceptions
+
 colorama.init(convert=True)
 
 
@@ -96,18 +98,32 @@ def convert_to_mp3(file):
         return convert_to_mp3(file)
 
 
+def prompt() -> None:
+    video_link = str(input("Paste the link to be downloaded (enter to exit): "))
+    if video_link == "":
+        sys.exit()
+    # TODO: regex for playlist.
+    elif 'playlist' in video_link:
+        download_playlist(video_link)
+    else:
+        download_video(video_link)
+
+
 debug = True
 
 if __name__ == '__main__':
     while True:
-        video_link = str(input("Paste the link to be downloaded (enter to exit): "))
-        if video_link == "":
-            sys.exit()
-        # TODO: regex for playlist.
-        elif 'playlist' in video_link:
-            download_playlist(video_link)
-        else:
-            download_video(video_link)
+        try:
+            prompt()
+        except (
+                exceptions.PytubeError,
+                exceptions.RegexMatchError,
+                exceptions.ExtractError,
+                exceptions.AgeRestrictedError,
+                exceptions.LiveStreamError,
+                exceptions.HTMLParseError
+        ) as err:
+            print(err)
 
 # Workaround
 # https://github.com/pytube/pytube/issues/1754#issuecomment-1675184514
